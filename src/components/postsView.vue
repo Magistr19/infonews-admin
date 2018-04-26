@@ -18,14 +18,16 @@
 
       v-select(
         :items='categoriesOptions'
-        v-model='selectedPost.categories'
+        v-model='selectedPost.categories.title'
+        @change='chooseCategory'
         label='Рубрика'
         required
-        :rules='[ v => !!v.title || "Оберіть рубрику!" ]')
+        :rules='[ v => !!v || "Оберіть рубрику!" ]')
 
       v-select(
         :items='subcategoriesOptions(selectedPost.categories)'
         v-model='selectedPost.categories.subcategory.title'
+        @change='chooseSubcategory'
         label='Підрубрика')
 
       wysiwyg(v-model='selectedPost.content')
@@ -69,7 +71,7 @@ export default {
   methods: {
     ...mapActions('СategoriesStore', ['getAllCategories']),
     ...mapActions('PostsStore', ['submitPost']),
-    ...mapMutations('PostsStore', ['updateSelectedPost']),
+    ...mapMutations('PostsStore', ['updateSelectedPost', 'chooseCategory', 'chooseSubcategory']),
     submitForm () {
       this.submitPost()
         .then(response => {
@@ -81,14 +83,27 @@ export default {
           this.showInfo(e)
         })
     },
+    chooseCategory (catTitle) {
+      if (!catTitle) this.selectedPost.categories.link = ''
+      else {
+        this.selectedPost.categories.link = this.categories.find(cat => cat.title === catTitle).link
+      }
+    },
+    chooseSubcategory (subcatTitle) {
+      if (!subcatTitle) this.selectedPost.categories.subcategory.link = ''
+      else {
+        const subcategories = this.categories.find(cat => cat.title === this.selectedPost.categories.title).subcategories
+        this.selectedPost.categories.subcategory.link = subcategories.find(subcat => subcat.title === subcatTitle).link
+      }
+    },
     subcategoriesOptions (choosedCategory) {
-      let resultOptions = [{ value: { title: '', link: '' }, text: 'Без підрубрики' }]
+      let resultOptions = [{ value: '', text: 'Без підрубрики' }]
       if (choosedCategory) {
         const category = this.categories.find(category => category.link === choosedCategory.link)
         if (category && category.subcategories) {
           category.subcategories.map(subCategory => {
             resultOptions.push({
-              value: { title: subCategory.title, link: subCategory.link },
+              value: subCategory.title,
               text: subCategory.title
             })
           })
@@ -112,10 +127,7 @@ export default {
         this.categories.map(category => {
           resultOptions.push(
             {
-              value: {
-                link: category.link,
-                title: category.title
-              },
+              value: category.title,
               text: category.title
             })
         })
@@ -125,6 +137,9 @@ export default {
   },
 
   watch: {
+    'selectedPost.categories.title': function () {
+      this.selectedPost.categories.subcategory = { link: '', title: '' }
+    },
     'selectedPost': {
       handler: function (val) {
         this.updateSelectedPost(val)
@@ -136,5 +151,24 @@ export default {
 </script>
 
 <style>
-
+.editr {
+  border: 0;
+}
+.editr--content {
+  min-height: 300px;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+}
+.editr--toolbar {
+  background: #212121;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);
+  border: 0;
+}
+.editr--toolbar a {
+  fill: #ffffff;
+}
+.editr--toolbar .dashboard {
+  background: #212121;
+  color: #ffffff;
+}
 </style>
+
