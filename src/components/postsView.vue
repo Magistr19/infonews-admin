@@ -8,13 +8,13 @@
         :rules='validatorRules')
 
       app-file-input(
-        @file='selectedPost.poster = $event'
+        @file='selectedPost.picture = $event'
         label='Постер'
         :required='true'
         accept='.jpg, .jpeg, .png')
 
       div(v-if='postImage')
-        v-avatar(:src='postImage' size='200' :tile='true')
+        img(:src='postImage' size='200' :tile='true').preview
 
       v-select(
         :items='categoriesOptions'
@@ -22,7 +22,7 @@
         @change='chooseCategory'
         label='Рубрика'
         required
-        :rules='[ v => !!v || "Оберіть рубрику!" ]')
+        :rules='validatorRules')
 
       v-select(
         :items='subcategoriesOptions(selectedPost.categories)'
@@ -42,6 +42,7 @@
       v-btn(
         type='submit'
         :disabled='!valid || submitting || !selectedPost.content') Опублікувати
+      v-btn(@click.native='resetPost') Очистити
     v-snackbar(top right v-model='showSnackbar')
       | {{ info }}
       v-btn(flat color="pink" @click.native="showSnackbar = false") Закрити
@@ -71,7 +72,7 @@ export default {
   methods: {
     ...mapActions('СategoriesStore', ['getAllCategories']),
     ...mapActions('PostsStore', ['submitPost']),
-    ...mapMutations('PostsStore', ['updateSelectedPost', 'chooseCategory', 'chooseSubcategory']),
+    ...mapMutations('PostsStore', ['updateSelectedPost', 'resetPost']),
     submitForm () {
       this.submitPost()
         .then(response => {
@@ -151,6 +152,11 @@ export default {
 </script>
 
 <style>
+.preview {
+  display: block;
+  max-width: 300px;
+  width: 100%;
+}
 .editr {
   border: 0;
 }

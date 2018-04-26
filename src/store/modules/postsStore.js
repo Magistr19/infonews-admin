@@ -7,9 +7,10 @@ const CategoriesStore = {
     postsList: [],
     selectedPost: {
       title: '',
-      poster: null,
+      picture: null,
       shortcat: '',
       content: '',
+      views: 0,
       categories: {
         title: '',
         link: '',
@@ -26,12 +27,12 @@ const CategoriesStore = {
     posts: ({ postsList }) => (postsList),
     selectedPost: ({ selectedPost }) => (selectedPost),
     postImage (state) {
-      const img = state.selectedPost.poster
+      const img = state.selectedPost.picture
       if (!img) return ''
       if (img instanceof File) {
         return `${URL.createObjectURL(img)}`
       } else {
-        return img
+        return 'http://localhost:3000' + img
       }
     },
     postCategory (state) {
@@ -56,6 +57,25 @@ const CategoriesStore = {
     },
     setPostsList (state, posts) {
       state.postsList = posts
+    },
+    resetPost (state) {
+      state.selectedPost = {
+        title: '',
+        picture: null,
+        shortcat: '',
+        content: '',
+        views: 0,
+        categories: {
+          title: '',
+          link: '',
+          subcategory: {
+            title: '',
+            link: ''
+          }
+        },
+        _id: ''
+      }
+      state.edit = false
     }
   },
   actions: {
@@ -86,30 +106,30 @@ const CategoriesStore = {
         .then(response => commit('setPostsList', response))
         .catch(e => { throw new Error(e.message) })
     },
-    addNewPost ({ state }) {
-      console.log('Create: ', state.selectedPost)
-      /*
-      return Api.postsApi.addNewPost(post)
-        .then(response => { console.log(response); return response })
-        .catch(e => console.error(e)) */
+    addNewPost ({ state, commit }) {
+      return Api.postsApi.addNewPost(state.selectedPost, store.state.token)
+        .then(response => {
+          commit('resetPost')
+          return response
+        })
+        .catch(e => { throw new Error(e.message) })
     },
-    editPost ({ state }) {
-      console.log('Edit: ', state.selectedPost)
-      /*
-      return Api.postsApi.editPost(data.formData, data.id)
-        .then(response => { console.log(response); return response })
-        .catch(e => console.error(e)) */
+    editPost ({ state, commit }) {
+      return Api.postsApi.editPost(state.selectedPost, state.selectedPost._id, store.state.token)
+        .then(response => {
+          commit('resetPost')
+          return response
+        })
+        .catch(e => { throw new Error(e.message) })
     },
     removePost (context, id) {
-      console.log('Remove: ', id)
-      /*
       return Api.postsApi.removePost(id)
-        .then(response => { console.log(response); return response })
-        .catch(e => console.error(e)) */
+        .then(response => response)
+        .catch(e => { throw new Error(e.message) })
     },
     choosePost ({ dispatch, state }, postId) {
       state.edit = true
-      return dispatch('getPostById', postId).then(() => console.log('!'))
+      return dispatch('getPostById', postId)
     }
   }
 }

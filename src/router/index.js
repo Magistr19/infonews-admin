@@ -10,6 +10,10 @@ export default new Router({
       component: () => import('@/components/indexView')
     },
     {
+      path: '/admin',
+      redirect: '/admin/posts'
+    },
+    {
       path: '/admin/posts',
       name: 'Posts',
       component: () => import('@/components/postsView')
@@ -23,6 +27,11 @@ export default new Router({
       path: '/admin/postsList',
       name: 'PostsList',
       component: () => import('@/components/postsListView')
+    },
+    {
+      path: '/admin/authors',
+      name: 'Authors',
+      component: () => import('@/components/authorsView')
     }
   ]
 })

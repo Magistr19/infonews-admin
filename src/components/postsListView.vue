@@ -21,6 +21,7 @@
           v-btn(@click='deletePost(post._id)' icon color='pink')
             v-icon delete
       v-divider
+
     v-snackbar(v-model='showSnackbar' top right)
       | {{ info }}
       v-btn(flat color="pink" @click.native="showSnackbar = false") Закрити
@@ -60,6 +61,7 @@ export default {
         .then(response => {
           this.info = response.message
           this.showSnackbar = true
+          this.getAllPostsPreview()
         })
         .catch(e => {
           this.info = e.message

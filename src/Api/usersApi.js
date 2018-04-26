@@ -11,7 +11,7 @@ const usersApi = {
       .catch(() => [])
   },
   createNewUser (userData) {
-    return axios.post('/api/createNewUser', userData)
+    return axios.post('http://localhost:3000/api/createNewUser', userData)
       .then(response => response.data)
       .catch(e => { throw new Error(e.response.data.message) })
   }
