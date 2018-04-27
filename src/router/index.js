@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { store } from '../store'
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -35,3 +36,23 @@ export default new Router({
     }
   ]
 })
+
+const privatePages = [ '/admin/categories', '/admin/authors' ]
+
+router.beforeResolve((to, from, next) => {
+  const token = store.state.token
+  const userRole = store.state.UsersStore.currentUser.role
+
+  // prevent not authorized access
+  if (to.path !== '/' && !token) {
+    next('/')
+  } else
+  // deny access for no-admin users to private pages
+  if (token && userRole !== 'Admin' && privatePages.includes(to.path)) {
+    next('/admin/posts')
+  } else {
+    next()
+  }
+})
+
+export default router

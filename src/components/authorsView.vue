@@ -13,7 +13,10 @@
           v-subheader.headline Автори InfoNews
           v-divider
           template(v-for='user in users')
-            v-subheader.title {{ user.name }}
+            v-layout
+              v-subheader.title {{ user.name }}
+              v-btn(icon @click.native='removeAuthor(user._id)')
+                v-icon close
             v-divider
     v-snackbar(top right v-model='showSnackbar')
       | {{ info }}
@@ -41,14 +44,18 @@ export default {
   },
 
   methods: {
-    ...mapActions('UsersStore', ['createAuthor', 'getAllUsers']),
+    ...mapActions('UsersStore', ['createAuthor', 'getAllUsers', 'deleteAuthor']),
     addAuthor () {
       this.createAuthor(this.user)
         .then(response => {
           this.$refs.authorForm.reset()
-          this.getAllUsers()
           this.showInfo(response.message)
         })
+        .catch(e => this.showInfo(e.message))
+    },
+    removeAuthor (id) {
+      this.deleteAuthor(id)
+        .then(response => this.showInfo(response.message))
         .catch(e => this.showInfo(e.message))
     },
     showInfo (info) {

@@ -14,6 +14,11 @@ const usersApi = {
     return axios.post('http://localhost:3000/api/createNewUser', userData)
       .then(response => response.data)
       .catch(e => { throw new Error(e.response.data.message) })
+  },
+  deleteAuthor (id) {
+    return axios.delete(`http://localhost:3000/api/deleteUser/${id}`)
+      .then(response => response.data)
+      .catch(e => { throw new Error(e.response.data.message) })
   }
 }
 

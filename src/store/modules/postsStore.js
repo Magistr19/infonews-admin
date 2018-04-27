@@ -32,7 +32,7 @@ const CategoriesStore = {
       if (img instanceof File) {
         return `${URL.createObjectURL(img)}`
       } else {
-        return 'http://localhost:3000' + img
+        return img
       }
     },
     postCategory (state) {

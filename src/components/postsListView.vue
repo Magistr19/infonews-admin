@@ -1,7 +1,10 @@
 <template lang='pug'>
   v-container
     v-subheader.headline Усі записи
-    template(v-for='post in posts')
+    v-alert(:value='!loaded' type='info') Завантажується...
+    v-alert(:value='loaded && !posts.length' type='info') Записів немає
+    v-text-field(v-model='search' v-if='posts.length' label='Пошук по назві запису')
+    template(v-for='post in computedPosts')
       v-card
         v-card-media(:src='"http://localhost:3000" + post.picture' height='150px')
           v-subheader.title {{ post.title }}
@@ -33,12 +36,15 @@ import toDateString from '@/assets/toDateString'
 export default {
   created () {
     this.getAllPostsPreview()
+      .then(() => { this.loaded = true })
   },
 
   data () {
     return {
       showSnackbar: false,
-      info: ''
+      info: '',
+      loaded: false,
+      search: ''
     }
   },
 
@@ -71,7 +77,17 @@ export default {
   },
 
   computed: {
-    ...mapGetters('PostsStore', ['posts'])
+    ...mapGetters('PostsStore', ['posts']),
+    computedPosts () {
+      if (!this.search) return this.posts
+      else {
+        return this.posts.filter(post => {
+          return post.title
+            .toUpperCase()
+            .indexOf(this.search.toUpperCase(), 0) !== -1
+        })
+      }
+    }
   }
 }
 </script>

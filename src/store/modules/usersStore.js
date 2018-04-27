@@ -3,7 +3,12 @@ const UsersStore = {
   namespaced: true,
   state: {
     data: [],
-    currentUser: null
+    currentUser: {
+      name: '',
+      role: '',
+      login: '',
+      _id: null
+    }
   },
   getters: {
     users (state) {
@@ -15,7 +20,12 @@ const UsersStore = {
   },
   mutations: {
     clearUser (state) {
-      state.currentUser = null
+      state.currentUser = {
+        name: '',
+        role: '',
+        login: '',
+        _id: null
+      }
     },
     setUser (state, user) {
       state.currentUser = user
@@ -38,6 +48,14 @@ const UsersStore = {
       return Api.usersApi.createNewUser(userData)
         .then(response => {
           context.dispatch('getAllUsers')
+          return response
+        })
+        .catch(e => { throw new Error(e.message) })
+    },
+    deleteAuthor ({ dispatch }, id) {
+      return Api.usersApi.deleteAuthor(id)
+        .then(response => {
+          dispatch('getAllUsers')
           return response
         })
         .catch(e => { throw new Error(e.message) })
